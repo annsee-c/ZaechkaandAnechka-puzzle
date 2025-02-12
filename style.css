@@ -1,0 +1,15 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #ffe6f2;
+    color: #ff3385;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+canvas {
+    border: 2px solid #ff3385;
+    cursor: pointer;
+}
