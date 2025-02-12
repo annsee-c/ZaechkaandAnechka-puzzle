@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine Puzzle 💖</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Assemble the puzzle to see my message! 💕</h1>
+    <canvas id="puzzleCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("puzzleCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        const rows = 6;
+        const cols = 6;
+        const imageSrc = "my-photo.jpg";
+        let pieces = [];
+        let img = new Image();
+        img.src = imageSrc;
+        
+        img.onload = function() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            createPuzzle();
+        };
+        
+        function createPuzzle() {
+            let pieceWidth = img.width / cols;
+            let pieceHeight = img.height / rows;
+            
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    let piece = {
+                        correctX: x * pieceWidth,
+                        correctY: y * pieceHeight,
+                        x: Math.random() * (canvas.width - pieceWidth),
+                        y: Math.random() * (canvas.height - pieceHeight),
+                        width: pieceWidth,
+                        height: pieceHeight
+                    };
+                    pieces.push(piece);
+                }
+            }
+            drawPuzzle();
+        }
+        
+        function drawPuzzle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(piece => {
+                ctx.drawImage(img, piece.correctX, piece.correctY, piece.width, piece.height, piece.x, piece.y, piece.width, piece.height);
+            });
+        }
+        
+        let selectedPiece = null;
+        let offsetX, offsetY;
+        
+        canvas.addEventListener("mousedown", function(event) {
+            let mouseX = event.offsetX;
+            let mouseY = event.offsetY;
+            
+            selectedPiece = pieces.find(piece => 
+                mouseX > piece.x && mouseX < piece.x + piece.width &&
+                mouseY > piece.y && mouseY < piece.y + piece.height
+            );
+            
+            if (selectedPiece) {
+                offsetX = mouseX - selectedPiece.x;
+                offsetY = mouseY - selectedPiece.y;
+            }
+        });
+        
+        canvas.addEventListener("mousemove", function(event) {
+            if (!selectedPiece) return;
+            let newX = event.offsetX - offsetX;
+            let newY = event.offsetY - offsetY;
+            
+            selectedPiece.x = Math.max(0, Math.min(canvas.width - selectedPiece.width, newX));
+            selectedPiece.y = Math.max(0, Math.min(canvas.height - selectedPiece.height, newY));
+            
+            drawPuzzle();
+        });
+        
+        canvas.addEventListener("mouseup", function() {
+            if (!selectedPiece) return;
+            
+            if (Math.abs(selectedPiece.x - selectedPiece.correctX) < 10 && Math.abs(selectedPiece.y - selectedPiece.correctY) < 10) {
+                selectedPiece.x = selectedPiece.correctX;
+                selectedPiece.y = selectedPiece.correctY;
+            }
+            
+            selectedPiece = null;
+            drawPuzzle();
+            checkWin();
+        });
+        
+        function checkWin() {
+            if (pieces.every(piece => piece.x === piece.correctX && piece.y === piece.correctY)) {
+                setTimeout(() => alert("You did it! 💖 Happy Valentine's Day!"), 500);
+            }
+        }
+    </script>
+</body>
+</html>
